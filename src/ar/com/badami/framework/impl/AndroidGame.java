@@ -34,9 +34,9 @@ public abstract class AndroidGame extends Activity implements Game {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		boolean isLandscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-		// Trabaja en 320 por 480
-		int frameBufferWidth = isLandscape ? 480 : 320;
-		int frameBufferHeight = isLandscape ? 320 : 480;
+		// Trabaja en 480 por 800
+		int frameBufferWidth = isLandscape ? 800 : 480;
+		int frameBufferHeight = isLandscape ? 480 : 800;
 		// Usa RGB_565 para no desperdiciar memoria y que dibuje más rápido
 		Bitmap frameBuffer = Bitmap.createBitmap(frameBufferWidth, frameBufferHeight, Config.RGB_565);
 

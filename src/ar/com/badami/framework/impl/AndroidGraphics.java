@@ -12,6 +12,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import ar.com.badami.framework.Graphics;
 import ar.com.badami.framework.Pixmap;
 
@@ -23,6 +24,7 @@ public class AndroidGraphics implements Graphics {
 	// El canvas y el paint que usamos para dibujar
 	Canvas canvas;
 	Paint paint;
+	Paint paintText;
 	// Los dos rectangulos son necesarios para las imagenes
 	Rect srcRect = new Rect();
 	Rect dstRect = new Rect();
@@ -32,6 +34,7 @@ public class AndroidGraphics implements Graphics {
 		this.frameBuffer = frameBuffer;
 		this.canvas = new Canvas(frameBuffer);
 		this.paint = new Paint();
+		this.paintText = new Paint();
 	}
 
 	@Override
@@ -78,10 +81,20 @@ public class AndroidGraphics implements Graphics {
 	}
 
 	@Override
+	public Typeface newFont(String fileName) {
+		return Typeface.createFromAsset(assets, fileName);
+	}
+
+	@Override
 	public void clear(int color) {
 		// Saca las componentes R,G, B y las convierte a ints que luego le pasa
 		// a drawRGB
 		canvas.drawRGB((color & 0xff0000) >> 16, (color & 0xff00) >> 8, (color & 0xff));
+	}
+
+	@Override
+	public void drawColor(int color) {
+		canvas.drawColor(color);
 	}
 
 	@Override
@@ -102,7 +115,7 @@ public class AndroidGraphics implements Graphics {
 		paint.setStyle(Style.FILL);
 		// Se resta uno porque el pixel x e y es inclusivo, se le suma lo que
 		// falta para llegar al width o el height
-		canvas.drawRect(x, y, x + width - 1, y + width - 1, paint);
+		canvas.drawRect(x, y, x + width - 1, y + height - 1, paint);
 	}
 
 	@Override
@@ -124,6 +137,61 @@ public class AndroidGraphics implements Graphics {
 	@Override
 	public void drawPixmap(Pixmap pixmap, int x, int y) {
 		canvas.drawBitmap(((AndroidPixmap) pixmap).bitmap, x, y, null);
+	}
+
+	@Override
+	public void drawTextLeft(String text, float size, float xPos, float yPos, int color, Typeface font, float shadowRadius, float shadowDiff) {
+		drawText(text, size, xPos, yPos, color, font, Paint.Align.LEFT, shadowRadius, shadowDiff);
+	}
+
+	@Override
+	public void drawTextCenter(String text, float size, float xPos, float yPos, int color, Typeface font, float shadowRadius,
+			float shadowDiff) {
+		drawText(text, size, xPos, yPos, color, font, Paint.Align.CENTER, shadowRadius, shadowDiff);
+	}
+
+	@Override
+	public void drawTextRight(String text, float size, float xPos, float yPos, int color, Typeface font, float shadowRadius,
+			float shadowDiff) {
+		drawText(text, size, xPos, yPos, color, font, Paint.Align.RIGHT, shadowRadius, shadowDiff);
+	}
+
+	@Override
+	public void drawTextLeftWithBorder(String text, float size, float xPos, float yPos, int color, Typeface font, float shadowRadius,
+			float shadowDiff, int borderColor, float borderWidth) {
+		drawTextWithBorder(text, size, xPos, yPos, color, font, Paint.Align.LEFT, shadowRadius, shadowDiff, borderColor, borderWidth);
+	}
+
+	@Override
+	public void drawTextCenterWithBorder(String text, float size, float xPos, float yPos, int color, Typeface font, float shadowRadius,
+			float shadowDiff, int borderColor, float borderWidth) {
+		drawTextWithBorder(text, size, xPos, yPos, color, font, Paint.Align.CENTER, shadowRadius, shadowDiff, borderColor, borderWidth);
+	}
+
+	@Override
+	public void drawTextRightWithBorder(String text, float size, float xPos, float yPos, int color, Typeface font, float shadowRadius,
+			float shadowDiff, int borderColor, float borderWidth) {
+		drawTextWithBorder(text, size, xPos, yPos, color, font, Paint.Align.RIGHT, shadowRadius, shadowDiff, borderColor, borderWidth);
+	}
+
+	private void drawText(String text, float size, float xPos, float yPos, int color, Typeface font, Paint.Align align, float shadowRadius,
+			float shadowDiff) {
+		paintText.setTypeface(font);
+		paintText.setTextSize(size);
+		paintText.setTextAlign(align);
+		paintText.setStyle(Style.FILL);
+		paintText.setColor(color);
+		paintText.setShadowLayer(shadowRadius, shadowDiff, shadowDiff, color);
+		canvas.drawText(text, xPos, yPos, paintText);
+	}
+
+	private void drawTextWithBorder(String text, float size, float xPos, float yPos, int color, Typeface font, Paint.Align align,
+			float shadowRadius, float shadowDiff, int borderColor, float borderWidth) {
+		drawText(text, size, xPos, yPos, color, font, align, shadowRadius, shadowDiff);
+		paintText.setStyle(Style.STROKE);
+		paintText.setStrokeWidth(borderWidth);
+		paintText.setColor(borderColor);
+		canvas.drawText(text, xPos, yPos, paintText);
 	}
 
 	@Override
